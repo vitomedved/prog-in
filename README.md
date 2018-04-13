@@ -1,2 +1,1 @@
-# prog-in
-je treba tu nesto napisat?
+# Aplikacija za rangiranje klasifikatora
