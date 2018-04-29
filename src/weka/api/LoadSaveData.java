@@ -11,6 +11,7 @@ import java.io.IOException;
 import weka.core.converters.ConverterUtils.DataSource;
 
 public class LoadSaveData {
+	
 	public void LoadData(String filePath)
 	{
 		
