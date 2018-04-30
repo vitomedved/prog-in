@@ -78,6 +78,8 @@ public class Main {
 			System.out.println("IO exception has been thrown, maybe this file does not exist.");
 		}
 		
+		/*
+		 * THIS PART IS WHERE I LOAD CLASS BY NAME, CREATE DUMMY OBJECT AND USE METHOD ADD 
 		try {
 			
 			//Load class by its "path"
@@ -123,6 +125,8 @@ public class Main {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		UNTILL HERE --------------------------------------
+		*/
 		
 	}
 
