@@ -8,6 +8,7 @@ import java.util.Random;
 import weka.classifiers.Evaluation;
 //import weka.classifiers.bayes.NaiveBayes;
 import weka.classifiers.trees.J48;
+import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.converters.ConverterUtils.DataSource;
 
@@ -54,9 +55,15 @@ public class Main {
 			
 			trainDataset.setClassIndex(trainDataset.numAttributes() - 1);
 			
-			J48 tree = new J48();
+			//J48 tree = new J48();
 			
-			tree.buildClassifier(trainDataset);
+			CClassifier bayesNaive = new CClassifier();
+			bayesNaive.setClassifier("weka.classifiers.bayes.NaiveBayes");
+			//ClassLoaderManager.getClassByPath("weka.classifiers.bayes.NaiveBayes");
+			
+			bayesNaive.buildClassifier(trainDataset);			
+			
+			//tree.buildClassifier(trainDataset);
 			
 			Evaluation eval = new Evaluation(trainDataset);
 			
@@ -64,18 +71,25 @@ public class Main {
 			Instances testDataset = source1.getDataSet();
 			testDataset.setClassIndex(testDataset.numAttributes() - 1);
 			
-			eval.evaluateModel(tree, trainDataset);
-			
+			//eval.evaluateModel(tree, trainDataset);
+			//eval.evaluateModel(bayesNaive, trainDataset);
 			//za cross validation koristimo sljedeci kod umjesto linije 63
 			//Random random = new Random(1);
 			//int numFolds = 10;
 			//eval.crossValidateModel(tree, testDataset, numFolds, random);
 			
-			System.out.println(eval.toSummaryString("Eval results:\n", false));
-			System.out.println(eval.toMatrixString("=== Overall confusion matrix ===\n"));
+			//System.out.println(eval.toSummaryString("Eval results:\n", false));
+			//System.out.println(eval.toMatrixString("=== Overall confusion matrix ===\n"));
+			
+			System.out.println("\n-----------------Capabilities-----------------\n" + bayesNaive.getCapabilities());
+			
+			System.out.println("\n-----------------Global info-----------------\n" + bayesNaive.globalInfo());
+			
+			System.out.println("\n-----------------Tech info-----------------\n" + bayesNaive.getTechnicalInformation());
+			
+			System.out.println("\n-----------------List Options-----------------\n" + bayesNaive.listOptions().toString());
 		} catch (Exception e) {
 			e.printStackTrace();
-			System.out.println("IO exception has been thrown, maybe this file does not exist.");
 		}
 		
 		/*
