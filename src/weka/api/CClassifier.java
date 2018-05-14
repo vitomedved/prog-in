@@ -118,6 +118,11 @@ public class CClassifier extends weka.classifiers.AbstractClassifier{
 		
 		return (double[])this.castMethod("distributionForInstance", paramTypes, argumentList);
     }
+	
+	public String toString()
+	{
+		return this.m_c.toString();
+	}
 	/*
 	public void updateClassifier(Instance instance)
 	{
