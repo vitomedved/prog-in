@@ -27,14 +27,25 @@ public class Main {
 			//create classificator
 			CClassifier bayes = new CClassifier();
 			bayes.setClassifier("weka.classifiers.bayes.NaiveBayes");
-			bayes.buildClassifier(dataset);
+			//bayes.buildClassifier(dataset);
 			
 			System.out.println("========================================================================");
-			EvaluateModel(bayes, dataset);
+			//EvaluateModel(bayes, dataset);
 			System.out.println("========================================================================");
-			CrossClassify(bayes, dataset, 1, 10);
+			//CrossClassify(bayes, dataset, 1, 10);
 			System.out.println("========================================================================");			
-			PredictInstance(bayes, dataset, dataset.instance(5));
+			//PredictInstance(bayes, dataset, dataset.instance(5));
+			
+			Evaluation eval = new Evaluation(dataset);
+			Random random = new Random(1);
+			int numFolds = 10;
+			eval.crossValidateModel(bayes, dataset, numFolds, random);
+			
+			System.out.println(eval.toSummaryString());
+			
+			//CGUI window = new CGUI();
+			//window.open();
+			
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -71,6 +82,9 @@ public class Main {
 			Instances train = randData.trainCV(folds, i);
 			Instances test = randData.testCV(folds, i);
 			
+			System.out.println(train.numInstances() + " train instanci");
+			System.out.println(test.numInstances() + " test instanci");
+			
 			//System.out.println(train.toSummaryString());
 			//System.out.println(test.toSummaryString());
 			
@@ -78,7 +92,9 @@ public class Main {
 			eval.evaluateModel(bayes, test);
 			
 			//System.out.println(eval.toMatrixString("=== Confusion Matrix za fold: " + (i+1) + "/" + folds + " ==="));
-			System.out.println("Correct % for fold " + (i+1) + "/" + folds + " -> " + eval.pctCorrect());
+			System.out.println("Correct % for fold " + (i+1) + "/" + folds + " -> " + eval.toSummaryString());
+			
+			System.out.println();
 		}
 	}
 	
