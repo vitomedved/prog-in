@@ -2,7 +2,13 @@ package weka.api;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
+
+import org.jfree.data.statistics.BoxAndWhiskerCategoryDataset;
+import org.jfree.data.statistics.DefaultBoxAndWhiskerCategoryDataset;
+import org.jfree.ui.RefineryUtilities;
 
 //Weka handles .arff (attribute relation file format) and .csv formats
 import weka.classifiers.Evaluation;
@@ -12,6 +18,7 @@ import weka.classifiers.trees.J48;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.converters.ConverterUtils.DataSource;
+
 
 //TODO: use classloader from java libs to get classes by name???
 
@@ -36,15 +43,33 @@ public class Main {
 			System.out.println("========================================================================");			
 			//PredictInstance(bayes, dataset, dataset.instance(5));
 			
+			/*
 			Evaluation eval = new Evaluation(dataset);
 			Random random = new Random(1);
 			int numFolds = 10;
 			eval.crossValidateModel(bayes, dataset, numFolds, random);
 			
 			System.out.println(eval.toSummaryString());
-			
+			*/
 			//CGUI window = new CGUI();
 			//window.open();
+			
+			CrossClassify(bayes, dataset, 1, 10);
+			
+			CClassifier j48 = new CClassifier();
+			j48.setClassifier("weka.classifiers.trees.J48");
+			
+			CrossClassify(j48, dataset, 5, 10);
+			
+			
+			BoxAndWhiskerCategoryDataset m_dataset = CrossClassify(j48, dataset, 5, 10);;
+			
+			
+			
+			BoxPlot plot = new BoxPlot("Test", m_dataset);
+			plot.pack();
+			RefineryUtilities.centerFrameOnScreen(plot);
+			plot.setVisible(true);
 			
 			
 		} catch (Exception e) {
@@ -61,7 +86,8 @@ public class Main {
 		return classificator;
 	}
 	
-	private static void CrossClassify(CClassifier bayes, Instances randData, int seed, int folds) throws Exception
+	@SuppressWarnings("unchecked")
+	private static BoxAndWhiskerCategoryDataset CrossClassify(CClassifier bayes, Instances randData, int seed, int folds) throws Exception
 	{
 		Random rand = new Random(seed);
 		
@@ -74,9 +100,19 @@ public class Main {
 		{
 			randData.stratify(folds);
 		}
+		
+		final DefaultBoxAndWhiskerCategoryDataset dataset = new DefaultBoxAndWhiskerCategoryDataset();
+		@SuppressWarnings("rawtypes")
+		List[] list = new ArrayList[3];
+		list[0] = new ArrayList();
+		list[1] = new ArrayList();
+		list[2] = new ArrayList();
+		
 		//uvijek ce uzeti random data i iz njega napraviti test i train podatke koje onda evaluira medusobno
 		for(int i = 0; i < folds; i++)
 		{
+			System.out.println("=== FOLD: " + (i+1) + "/" + folds + " ===");
+			
 			Evaluation eval = new Evaluation(randData);
 			//get the folds
 			Instances train = randData.trainCV(folds, i);
@@ -91,11 +127,27 @@ public class Main {
 			bayes.buildClassifier(train);
 			eval.evaluateModel(bayes, test);
 			
-			//System.out.println(eval.toMatrixString("=== Confusion Matrix za fold: " + (i+1) + "/" + folds + " ==="));
-			System.out.println("Correct % for fold " + (i+1) + "/" + folds + " -> " + eval.toSummaryString());
+			System.out.println("num TP: " + eval.numTruePositives(0) + ", " + eval.numTruePositives(1) + ", " + eval.numTruePositives(2) + ", sum: " + (eval.numTruePositives(0) + eval.numTruePositives(1) + eval.numTruePositives(2)));
+			System.out.println("num TN: " + eval.numTrueNegatives(0) + ", " + eval.numTrueNegatives(1) + ", " + eval.numTrueNegatives(2) + ", sum: " + (eval.numTrueNegatives(0) + eval.numTrueNegatives(1) + eval.numTrueNegatives(2)));
+			
+			
+			for(int j = 0; j < 3; j++)
+			{
+				double gm = Math.sqrt(eval.truePositiveRate(j) * eval.trueNegativeRate(j));
+				System.out.println("GM za klasu " + j + ": " + gm);
+
+				list[j].add(gm);
+			}
 			
 			System.out.println();
 		}
+		
+		for(int x = 0; x < 3; x++)
+		{
+			dataset.add(list[x], "Class " + x, "Class " + x);
+		}
+		
+		return dataset;
 	}
 	
 	private static void EvaluateModel(CClassifier classificator, Instances dataset) throws Exception
