@@ -6,7 +6,7 @@ public class ClassLoaderManager
 	public static Class getClassByPath(String className)
 	{
 		try {
-			Class c = Class.forName("weka.api." + className);
+			Class c = Class.forName(/*"weka.api." + */className);
 			return c;
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
@@ -19,7 +19,7 @@ public class ClassLoaderManager
 	{
 		Object o = null;
 		Class c = null;
-		String classPath = "weka.api." + className;
+		String classPath = /*"weka.api." + */className;
 		
 		
 		try {

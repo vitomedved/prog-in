@@ -2,132 +2,197 @@ package weka.api;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
+
+import org.jfree.data.statistics.BoxAndWhiskerCategoryDataset;
+import org.jfree.data.statistics.DefaultBoxAndWhiskerCategoryDataset;
+import org.jfree.ui.RefineryUtilities;
 
 //Weka handles .arff (attribute relation file format) and .csv formats
 import weka.classifiers.Evaluation;
+import weka.classifiers.bayes.NaiveBayes;
 //import weka.classifiers.bayes.NaiveBayes;
 import weka.classifiers.trees.J48;
+import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.converters.ConverterUtils.DataSource;
+
 
 //TODO: use classloader from java libs to get classes by name???
 
 public class Main {
 
 	public static void main(String[] args) {
-		try {
-			
-			/*
-			 * STARTING CODE
-			 * 
+		try {			
+			//Get data
 			DataSource source = new DataSource("C:\\Users\\vitom\\Desktop\\iris.arff");
-			
-			Instances dataset = source.getDataSet(); 
-			  
-			//class index treba postaviti na zadnji atribut
+			Instances dataset = source.getDataSet();
 			dataset.setClassIndex(dataset.numAttributes() - 1);
 			
-			//create and build classifier
-			//TODO: za kasnije bi bilo dobro diskretizirati vrijednosti prije buildanja classifiera da vidimo ako podrzava odredeni tip
-			NaiveBayes nb = new NaiveBayes();
+			//create classificator
+			CClassifier bayes = new CClassifier();
+			bayes.setClassifier("weka.classifiers.bayes.NaiveBayes");
+			//bayes.buildClassifier(dataset);
 			
-			//Ako zelim postaviti neke opcije to radim ovdje prije buildanja
-			//1. Napravi string array optionsa koje zelimo staviti i spremimo ih, npr. za 2 opcije:
-			//String[] options = new String[2];
-			//options[0] = "-U";
-			//options[1] = "opcija2";
-			//nb.setOptions(options);
+			System.out.println("========================================================================");
+			//EvaluateModel(bayes, dataset);
+			System.out.println("========================================================================");
+			//CrossClassify(bayes, dataset, 1, 10);
+			System.out.println("========================================================================");			
+			//PredictInstance(bayes, dataset, dataset.instance(5));
 			
-			nb.buildClassifier(dataset);
+			/*
+			Evaluation eval = new Evaluation(dataset);
+			Random random = new Random(1);
+			int numFolds = 10;
+			eval.crossValidateModel(bayes, dataset, numFolds, random);
 			
-			//isprintaj capabilities od tog classifiera (atribute koje moze primiti)
-			
-			System.out.println(nb.getCapabilities().toString());
-			*
-			*
+			System.out.println(eval.toSummaryString());
 			*/
+			//CGUI window = new CGUI();
+			//window.open();
 			
-			DataSource source = new DataSource("C:\\Users\\vitom\\Desktop\\iris.arff");
+			CrossClassify(bayes, dataset, 1, 10);
 			
-			Instances trainDataset = source.getDataSet();
+			CClassifier j48 = new CClassifier();
+			j48.setClassifier("weka.classifiers.trees.J48");
 			
-			trainDataset.setClassIndex(trainDataset.numAttributes() - 1);
+			CrossClassify(j48, dataset, 5, 10);
 			
-			J48 tree = new J48();
 			
-			tree.buildClassifier(trainDataset);
+			BoxAndWhiskerCategoryDataset m_dataset = CrossClassify(j48, dataset, 5, 10);;
 			
-			Evaluation eval = new Evaluation(trainDataset);
 			
-			DataSource source1 = new DataSource("C:\\Users\\vitom\\Desktop\\iris-test.arff");
-			Instances testDataset = source1.getDataSet();
-			testDataset.setClassIndex(testDataset.numAttributes() - 1);
 			
-			eval.evaluateModel(tree, trainDataset);
+			BoxPlot plot = new BoxPlot("Test", m_dataset);
+			plot.pack();
+			RefineryUtilities.centerFrameOnScreen(plot);
+			plot.setVisible(true);
 			
-			//za cross validation koristimo sljedeci kod umjesto linije 63
-			//Random random = new Random(1);
-			//int numFolds = 10;
-			//eval.crossValidateModel(tree, testDataset, numFolds, random);
 			
-			System.out.println(eval.toSummaryString("Eval results:\n", false));
-			System.out.println(eval.toMatrixString("=== Overall confusion matrix ===\n"));
 		} catch (Exception e) {
 			e.printStackTrace();
-			System.out.println("IO exception has been thrown, maybe this file does not exist.");
+		}
+	}
+	
+	private static CClassifier runClassificator(String path, Instances dataset) throws Exception
+	{
+		CClassifier classificator = new CClassifier();
+		classificator.setClassifier(path);
+		classificator.buildClassifier(dataset);
+		
+		return classificator;
+	}
+	
+	@SuppressWarnings("unchecked")
+	private static BoxAndWhiskerCategoryDataset CrossClassify(CClassifier bayes, Instances randData, int seed, int folds) throws Exception
+	{
+		Random rand = new Random(seed);
+		
+		//randomizes the dataset
+		randData.randomize(rand);
+		
+		//check if attribute of dataset is nominal
+		//if yes, stratify data on folds (ubiti podijeli set podataka na folds komada)
+		if(randData.classAttribute().isNominal())
+		{
+			randData.stratify(folds);
 		}
 		
-		/*
-		 * THIS PART IS WHERE I LOAD CLASS BY NAME, CREATE DUMMY OBJECT AND USE METHOD ADD 
-		try {
+		final DefaultBoxAndWhiskerCategoryDataset dataset = new DefaultBoxAndWhiskerCategoryDataset();
+		@SuppressWarnings("rawtypes")
+		List[] list = new ArrayList[3];
+		list[0] = new ArrayList();
+		list[1] = new ArrayList();
+		list[2] = new ArrayList();
+		
+		//uvijek ce uzeti random data i iz njega napraviti test i train podatke koje onda evaluira medusobno
+		for(int i = 0; i < folds; i++)
+		{
+			System.out.println("=== FOLD: " + (i+1) + "/" + folds + " ===");
 			
-			//Load class by its "path"
-			Class c = Class.forName("weka.api.Dummy");
-			System.out.println("Loaded class: " + c.getName());
+			Evaluation eval = new Evaluation(randData);
+			//get the folds
+			Instances train = randData.trainCV(folds, i);
+			Instances test = randData.testCV(folds, i);
 			
-			//Set arguments for constructor
-			//First set Class array with argument types for constructor
-			Class[] arguments = new Class[1];
-			arguments[0] = String.class;
-			//Second create  those arguments
-			String pathToFile = "path";
-			try {
-				//Now I can create object of that class
-				Object o = c.getDeclaredConstructor(arguments).newInstance(pathToFile);
-				System.out.println("Cereated object: " + o.toString());
-				//Let's call a method. As we will know arguments and names of each function, we can call it like this.
-				//Initialize parameters
-				Class parameterTypes[] = new Class[2];
-				parameterTypes[0] = Integer.TYPE;
-				parameterTypes[1] = Integer.TYPE;
-				//Get wanted method by name and param. types
-				Method add = c.getMethod("add", parameterTypes);
-				
-				//Now we can use this method on object o initalized on line 95
-				//Create argument values for methods
-				Object[] argumentList = new Object[2];
-				argumentList[0] = new Integer(2);
-				argumentList[1] = new Integer(2);
-				//This means: invoke method "add" on object "o" with list of arguments "argumentList"
-				Object retObj = add.invoke(o, argumentList);
-				System.out.println("Adding: " + argumentList[0] + " + " + argumentList[1]);
-				Integer retVal = (Integer)retObj;
-				System.out.println("Returned value is: " + retVal);
-				
-			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
-					| InvocationTargetException | NoSuchMethodException | SecurityException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			System.out.println(train.numInstances() + " train instanci");
+			System.out.println(test.numInstances() + " test instanci");
+			
+			//System.out.println(train.toSummaryString());
+			//System.out.println(test.toSummaryString());
+			
+			bayes.buildClassifier(train);
+			eval.evaluateModel(bayes, test);
+			
+			System.out.println("num TP: " + eval.numTruePositives(0) + ", " + eval.numTruePositives(1) + ", " + eval.numTruePositives(2) + ", sum: " + (eval.numTruePositives(0) + eval.numTruePositives(1) + eval.numTruePositives(2)));
+			System.out.println("num TN: " + eval.numTrueNegatives(0) + ", " + eval.numTrueNegatives(1) + ", " + eval.numTrueNegatives(2) + ", sum: " + (eval.numTrueNegatives(0) + eval.numTrueNegatives(1) + eval.numTrueNegatives(2)));
+			
+			
+			for(int j = 0; j < 3; j++)
+			{
+				double gm = Math.sqrt(eval.truePositiveRate(j) * eval.trueNegativeRate(j));
+				System.out.println("GM za klasu " + j + ": " + gm);
+
+				list[j].add(gm);
 			}
-				
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			
+			System.out.println();
 		}
-		UNTILL HERE --------------------------------------
-		*/
 		
+		for(int x = 0; x < 3; x++)
+		{
+			dataset.add(list[x], "Class " + x, "Class " + x);
+		}
+		
+		return dataset;
+	}
+	
+	private static void EvaluateModel(CClassifier classificator, Instances dataset) throws Exception
+	{
+		Evaluation eval = new Evaluation(dataset);
+		eval.evaluateModel(classificator, dataset);
+		System.out.println(classificator.toString());
+		System.out.println(eval.toSummaryString("Eval results:\n", false));
+		System.out.println(eval.toMatrixString("=== Overall confusion matrix ===\n"));
 	}
 
+	public static void PredictInstance(CClassifier classificator, Instances dataset, Instance newInstance) throws Exception
+	{
+		for(int i = 0; i < dataset.numClasses(); i++)
+		{
+			System.out.println("Class value "+i+" is " + dataset.classAttribute().value(i));
+		}
+		
+		int correct = 0;
+		int incorrect = 0;
+		
+		//System.out.println("=== Actual class === Predicted ===");
+		System.out.println("Prediction for instance: " + newInstance.toString());
+		for(int i = 0; i < dataset.numInstances(); i++)
+		{
+			double actualClass = dataset.instance(i).classValue();
+			
+			String actual = dataset.classAttribute().value((int)actualClass);
+			
+			//Instance newInstance = dataset.instance(i);
+			
+			double predictedNB = classificator.classifyInstance(newInstance);
+			//System.out.println(actualClass + " " +predictedNB);
+			String predicted = dataset.classAttribute().value((int) predictedNB);
+			//System.out.println(actual + " === " + predicted);
+			if(actualClass != predictedNB)
+			{
+				incorrect++;
+			}
+			else
+			{
+				correct++;
+			}
+		}
+		
+		System.out.println("Correctly predicted: " + correct + ", incorrectly predicted: " + incorrect);
+	}
 }
