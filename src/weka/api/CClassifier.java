@@ -2,8 +2,13 @@ package weka.api;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
+import java.util.Random;
 
+import weka.classifiers.Evaluation;
 import weka.core.Capabilities;
 import weka.core.Instance;
 import weka.core.Instances;
@@ -34,7 +39,7 @@ public class CClassifier extends weka.classifiers.AbstractClassifier{
 		System.out.println("Instance is created, now use setClassifier(name) to load classifier");
 	}
 	
-	public boolean setClassifier(String classifierName)
+	public boolean setClassifier(String classifierName) throws MalformedURLException, ClassNotFoundException, InstantiationException, IllegalAccessException
 	{
 		boolean ret = false;
 		
@@ -43,8 +48,8 @@ public class CClassifier extends weka.classifiers.AbstractClassifier{
 			m_c = null;
 			m_o = null;
 		}
-		
-		m_c = ClassLoaderManager.getClassByPath(classifierName);
+		ClassLoaderManager CLM = new ClassLoaderManager();
+		m_c = CLM.getClassByPath(classifierName);
 		m_o = ClassLoaderManager.getObjectByClassName(classifierName);
 		
 		if(m_c != null && m_o != null)
@@ -264,4 +269,45 @@ public class CClassifier extends weka.classifiers.AbstractClassifier{
 	{
 		this.castMethod("finalizeAggregation");
 	}*/
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	/*private static*/public List CrossClassify(/*CClassifier classifier, */Instances randData, int seed, int folds) throws Exception
+	{
+		Random rand = new Random(seed);
+		
+		//randomizes the dataset
+		randData.randomize(rand);
+		
+		//check if attribute of dataset is nominal
+		//if yes, stratify data on folds (ubiti podijeli set podataka na folds komada)
+		if(randData.classAttribute().isNominal())
+		{
+			randData.stratify(folds);
+		}
+		@SuppressWarnings("rawtypes")
+		List list = new ArrayList();
+		
+		//uvijek ce uzeti random data i iz njega napraviti test i train podatke koje onda evaluira medusobno
+		for(int i = 0; i < folds; i++)
+		{
+			System.out.println("=== FOLD: " + (i+1) + "/" + folds + " ===");
+			
+			Evaluation eval = new Evaluation(randData);
+			//get the folds
+			Instances train = randData.trainCV(folds, i);
+			Instances test = randData.testCV(folds, i);
+			
+			System.out.println(train.numInstances() + " train instanci");
+			System.out.println(test.numInstances() + " test instanci");
+			
+			this.buildClassifier(train);
+			eval.evaluateModel(this, test);
+			System.out.println("num TP: " + eval.numTruePositives(0));
+			System.out.println("num TN: " + eval.numTrueNegatives(0));
+			//System.out.println(eval.toSummaryString());
+			double gm = Math.sqrt(eval.truePositiveRate(0) * eval.trueNegativeRate(0));
+			list.add(gm);
+		}
+		return list;
+	}
 }

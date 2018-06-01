@@ -15,5 +15,7 @@
 	<classpathentry kind="lib" path="C:/Users/vitom/Desktop/jfreechart-1.0.19/lib/orsonpdf-1.6-eval.jar"/>
 	<classpathentry kind="lib" path="C:/Users/vitom/Desktop/jfreechart-1.0.19/lib/servlet.jar"/>
 	<classpathentry kind="lib" path="C:/Users/vitom/Desktop/jfreechart-1.0.19/lib/swtgraphics2d.jar"/>
+	<classpathentry kind="lib" path="C:/Users/vitom/Documents/GitHub/prog-in/mysql-connector-java-5.1.46.jar"/>
+	<classpathentry kind="lib" path="D:/xampp/htdocs/prog-ing/classifiers"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

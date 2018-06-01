@@ -38,6 +38,13 @@ import javax.swing.JTable;
 import javax.swing.JList;
 import javax.swing.JCheckBox;
 import javax.swing.event.ListSelectionListener;
+
+import org.jfree.data.statistics.DefaultBoxAndWhiskerCategoryDataset;
+import org.jfree.ui.RefineryUtilities;
+
+import weka.core.Instances;
+import weka.core.converters.ConverterUtils.DataSource;
+
 import javax.swing.event.ListSelectionEvent;
 
 /* za pocetak, zao mi je sta kod ima milijun linija al ljepse izgleda gui nego prije.
@@ -80,26 +87,6 @@ public class CGUI extends JFrame {
 	private JPanel viewClassifier;
 	private JTextField txtOdabranaDatoteka;
 	private JTextField txtOdabranaDatoteka_1;
-
-
-	/**
-	 * Launch the application.
-	 */
-	
-	
-	
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					CGUI frame = new CGUI();
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
 
 	/**
 	 * Create the frame.
@@ -264,7 +251,7 @@ public class CGUI extends JFrame {
 				}else {
 					
 						Path src = Paths.get(path);
-						Path dst = Paths.get("C:\\xampp\\htdocs\\javni_podaci\\" + imeDat);
+						Path dst = Paths.get("D:\\xampp\\htdocs\\prog-ing\\datasets\\" + imeDat);
 						path2 = dst.toString().replace("\\", "\\\\");
 											
 						try {
@@ -440,7 +427,7 @@ public class CGUI extends JFrame {
 				}else {
 					
 						Path src = Paths.get(path);
-						Path dst = Paths.get("C:\\xampp\\htdocs\\klasifikatori\\" + imeDat);
+						Path dst = Paths.get("D:\\xampp\\htdocs\\prog-ing\\classifiers\\" + imeDat);
 						path2 = dst.toString().replace("\\", "\\\\");
 											
 						try {
@@ -448,7 +435,7 @@ public class CGUI extends JFrame {
 
 							if(upis_pod() == true) {
 								Files.copy(src, dst);
-								label_1.setText("Uspješno izvršeno");
+								label_1.setText("Uspjesno izvrseno");
 					
 							}else {
 								label_1.setText(poruka);
@@ -632,7 +619,70 @@ public class CGUI extends JFrame {
 					izvuci_klasifikator(odbKlasifikatoris);
 					izvuci_podatak(odbPodacis);
 					textArea.setText(putPod + "\n" + klas_lista);
-				
+					
+					
+					try {
+						//Create dataset for BoxPlot
+						DefaultBoxAndWhiskerCategoryDataset _dataset = new DefaultBoxAndWhiskerCategoryDataset();
+						
+						for(int i = 0; i < klas_lista.size(); i++)
+						{
+							//Create and set classifier
+							CClassifier classifier = new CClassifier();
+							classifier.setClassifier(klas_lista.get(i));
+							
+							//Create list for cross-classification to use later for BoxPlot
+							List array = new ArrayList();
+							
+							DataSource source;
+						
+							//Get dataset and set its class index
+							source = new DataSource(putPod);
+							
+							Instances dataset = source.getDataSet();
+							dataset.setClassIndex(dataset.numAttributes() - 1);
+							
+							//Get list from cross-classification to use later for BoxPlot
+							array = classifier.CrossClassify(dataset, 1, 10);
+							
+							//Add array to dataset
+							_dataset.add(array, classifier.toString(), classifier.toString());
+						}
+						//Draw BoxPlot
+						BoxPlot plot = new BoxPlot("Test", _dataset);
+						plot.pack();
+						RefineryUtilities.centerFrameOnScreen(plot);
+						plot.setVisible(true);
+						
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					
+					/*CClassifier j48 = new CClassifier();
+					j48.setClassifier("weka.classifiers.trees.J48");
+					
+					CClassifier nb = new CClassifier();
+					nb.setClassifier("weka.classifiers.bayes.NaiveBayes");
+					
+					
+					List[] arr = new ArrayList[2];
+					arr[0] = new ArrayList();
+					arr[1] = new ArrayList();
+					
+					arr[0] = j48.CrossClassify(dataset, 1, 10);
+					arr[1] = nb.CrossClassify(dataset, 1, 10);
+					
+					DefaultBoxAndWhiskerCategoryDataset m_dataset = new DefaultBoxAndWhiskerCategoryDataset();
+					
+					m_dataset.add(arr[0], j48.toString(), j48.toString());
+					m_dataset.add(arr[1], nb.toString(), nb.toString());
+					//BoxAndWhiskerCategoryDataset m_dataset = new DefaultBoxAndWhiskerCategoryDataset();
+					
+					
+					BoxPlot plot = new BoxPlot("Test", m_dataset);
+					plot.pack();
+					RefineryUtilities.centerFrameOnScreen(plot);
+					plot.setVisible(true);*/
 
 			}
 
@@ -667,8 +717,8 @@ public class CGUI extends JFrame {
 	
 	boolean upis_pod() {
 		 try { 
-	            String url = "jdbc:mysql://localhost:3306/database?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=CET"; 
-	            Connection conn = DriverManager.getConnection(url,"root",""); 
+	            String url = "jdbc:mysql://localhost:3306/prog-ing"; 
+	            Connection conn = DriverManager.getConnection(url,"root","root"); 
 	            Statement st = conn.createStatement(); 
 	           
 	            	
@@ -715,8 +765,9 @@ public class CGUI extends JFrame {
 	
 	boolean ispis_pod() {
 		try { 
-            String url = "jdbc:mysql://localhost:3306/database?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=CET"; 
-            Connection conn = DriverManager.getConnection(url,"root",""); 
+            String url = "jdbc:mysql://localhost:3306/prog-ing"; 
+            //Class.forName("com.mysql.jdbc.Driver");
+            Connection conn = DriverManager.getConnection(url,"root","root"); 
             
             Statement st1 = conn.createStatement(); 
         	ResultSet provjera = st1.executeQuery("SELECT name FROM `javni_pod`");
@@ -757,6 +808,7 @@ public class CGUI extends JFrame {
             System.err.println("Got an exception! "); 
             System.err.println(e.getMessage()); 
             poruka = "Neuspijelo spajanje na bazu";
+            e.printStackTrace();
     		return false; 
 
            
@@ -766,8 +818,8 @@ public class CGUI extends JFrame {
 	
 	void izvuci_podatak(String odbPodacis) {
 		try {
-			String url = "jdbc:mysql://localhost:3306/database?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=CET"; 
-            Connection conn = DriverManager.getConnection(url,"root",""); 
+			String url = "jdbc:mysql://localhost:3306/prog-ing"; 
+            Connection conn = DriverManager.getConnection(url,"root","root"); 
             
             Statement st1 = conn.createStatement();
         	ResultSet provjera = st1.executeQuery("SELECT path FROM `javni_pod` where name = '"+ odbPodacis +"' ");
@@ -788,8 +840,9 @@ public class CGUI extends JFrame {
 	void izvuci_klasifikator(String odbKlasifikatoris) {
 		
 		try {
-			String url = "jdbc:mysql://localhost:3306/database?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=CET"; 
-            Connection conn = DriverManager.getConnection(url,"root",""); 
+			String url = "jdbc:mysql://localhost:3306/prog-ing"; 
+			
+            Connection conn = DriverManager.getConnection(url,"root","root"); 
             
             Statement st1 = conn.createStatement();
 
