@@ -29,9 +29,9 @@ public class Main {
 	public static void main(String[] args) {
 		try {			
 			//Get data
-			/*DataSource source = new DataSource("C:\\Users\\vitom\\Desktop\\test123.arff");
+			DataSource source = new DataSource("C:\\Users\\vitom\\Desktop\\test123.arff");
 			Instances dataset = source.getDataSet();
-			dataset.setClassIndex(dataset.numAttributes() - 1);*/
+			dataset.setClassIndex(dataset.numAttributes() - 1);
 			
 			//create classificator
 			//CClassifier bayes = new CClassifier();
@@ -43,34 +43,40 @@ public class Main {
 			
 			//CrossClassify(bayes, dataset, 1, 10);
 			
-			/*CClassifier j48 = new CClassifier();
+			CClassifier j48 = new CClassifier();
 			j48.setClassifier("weka.classifiers.trees.J48");
 			
 			CClassifier nb = new CClassifier();
 			nb.setClassifier("weka.classifiers.bayes.NaiveBayes");
 			
+			CClassifier oneR = new CClassifier();
+			oneR.setClassifier("weka.classifiers.bayes.BayesNet");
 			
-			List[] arr = new ArrayList[2];
+			
+			List[] arr = new ArrayList[3];
 			arr[0] = new ArrayList();
 			arr[1] = new ArrayList();
+			arr[2] = new ArrayList();
 			
 			arr[0] = j48.CrossClassify(dataset, 1, 10);
 			arr[1] = nb.CrossClassify(dataset, 1, 10);
+			arr[2] = oneR.CrossClassify(dataset, 1, 10);
 			
 			DefaultBoxAndWhiskerCategoryDataset m_dataset = new DefaultBoxAndWhiskerCategoryDataset();
 			
 			m_dataset.add(arr[0], j48.toString(), j48.toString());
 			m_dataset.add(arr[1], nb.toString(), nb.toString());
+			m_dataset.add(arr[2], oneR.toString(), oneR.toString());
 			//BoxAndWhiskerCategoryDataset m_dataset = new DefaultBoxAndWhiskerCategoryDataset();
 			
 			
 			BoxPlot plot = new BoxPlot("Test", m_dataset);
 			plot.pack();
 			RefineryUtilities.centerFrameOnScreen(plot);
-			plot.setVisible(true);*/
+			plot.setVisible(true);
 			
-			CGUI frame = new CGUI();
-			frame.setVisible(true);
+			//CGUI frame = new CGUI();
+			//frame.setVisible(true);
 			
 			//LoadSaveData.CSVtoARFF("C:\\Users\\vitom\\Desktop\\JDT_R2_0.csv", "C:\\Users\\vitom\\Desktop\\test.arff");
 			

@@ -12,7 +12,7 @@ public class ClassLoaderManager extends ClassLoader
 	//TODO: check why getClass is overriding
 	public Class getClassByPath(String className)
 	{
-		/*
+		
 		try {
 			Class c = Class.forName(className);
 			return c;
@@ -20,8 +20,8 @@ public class ClassLoaderManager extends ClassLoader
 			e.printStackTrace();
 			//TODO: does printstack return null automatically?
 			return null;
-		}*/
-		File file = new File(PATH + "J48" + ".class");
+		}
+		/*File file = new File(PATH + "J48" + ".class");
 
         try {
             FileInputStream fileInputStream = new FileInputStream(file);
@@ -34,7 +34,7 @@ public class ClassLoaderManager extends ClassLoader
             e.printStackTrace();
         }
 
-        return null;
+        return null;*/
 	}
 	
 	public static Object getObjectByClassName(String className)
