@@ -43,11 +43,11 @@ public class Main {
 			
 			//CrossClassify(bayes, dataset, 1, 10);
 			
-			CClassifier j48 = new CClassifier();
+			/*CClassifier j48 = new CClassifier();
 			j48.setClassifier("weka.classifiers.trees.J48");
 			
 			CClassifier nb = new CClassifier();
-			nb.setClassifier("weka.classifiers.bayes.NaiveBayes");
+			nb.setClassifier("classifiers.NaiveBayes");
 			
 			CClassifier oneR = new CClassifier();
 			oneR.setClassifier("weka.classifiers.bayes.BayesNet");
@@ -73,10 +73,10 @@ public class Main {
 			BoxPlot plot = new BoxPlot("Test", m_dataset);
 			plot.pack();
 			RefineryUtilities.centerFrameOnScreen(plot);
-			plot.setVisible(true);
+			plot.setVisible(true);*/
 			
-			//CGUI frame = new CGUI();
-			//frame.setVisible(true);
+			CGUI frame = new CGUI();
+			frame.setVisible(true);
 			
 			//LoadSaveData.CSVtoARFF("C:\\Users\\vitom\\Desktop\\JDT_R2_0.csv", "C:\\Users\\vitom\\Desktop\\test.arff");
 			

@@ -625,11 +625,20 @@ public class CGUI extends JFrame {
 						//Create dataset for BoxPlot
 						DefaultBoxAndWhiskerCategoryDataset _dataset = new DefaultBoxAndWhiskerCategoryDataset();
 						
+						klas_lista.clear();
+						klas_lista.add("NaiveBayes");
+						klas_lista.add("J48");
+						
 						for(int i = 0; i < klas_lista.size(); i++)
 						{
 							//Create and set classifier
 							CClassifier classifier = new CClassifier();
-							classifier.setClassifier(klas_lista.get(i));
+							
+							// TODO: klas_lista bi trebala sadrzavati string classifiers.ime_datoteke, 
+							// a prilikom uploada se mora spremati u C:\Users\vitom\Documents\GitHub\prog-in\src\classifiers, 
+							// klasifikator mora biti .java
+							//package klasifikatora mora biti classifiers
+							classifier.setClassifier("classifiers." + klas_lista.get(i));
 							
 							//Create list for cross-classification to use later for BoxPlot
 							List array = new ArrayList();
