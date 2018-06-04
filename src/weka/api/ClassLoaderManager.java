@@ -1,18 +1,40 @@
 package weka.api;
 
-public class ClassLoaderManager 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+
+public class ClassLoaderManager extends ClassLoader 
 {
+	
+	private final String PATH = "D://xampp//htdocs//prog-ing//classifiers//";
+	
 	//TODO: check why getClass is overriding
-	public static Class getClassByPath(String className)
+	public Class getClassByPath(String className)
 	{
+		
 		try {
-			Class c = Class.forName(/*"weka.api." + */className);
+			Class c = Class.forName(className);
 			return c;
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 			//TODO: does printstack return null automatically?
 			return null;
 		}
+		/*File file = new File(PATH + "J48" + ".class");
+
+        try {
+            FileInputStream fileInputStream = new FileInputStream(file);
+            byte[] bytes = new byte[fileInputStream.available()];
+
+            fileInputStream.read(bytes);
+
+            return defineClass("J48", bytes, 0, bytes.length);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;*/
 	}
 	
 	public static Object getObjectByClassName(String className)

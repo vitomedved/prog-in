@@ -35,7 +35,7 @@ public class LoadSaveData {
 
 	}
 	
-	public void CSVtoARFF(String csvPath, String destination) throws IOException
+	public static void CSVtoARFF(String csvPath, String destination) throws IOException
 	{
 		//Load CSV file
 		CSVLoader loader = new CSVLoader();
