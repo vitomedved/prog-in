@@ -251,7 +251,7 @@ public class CGUI extends JFrame {
 				}else {
 					
 						Path src = Paths.get(path);
-						Path dst = Paths.get("D:\\xampp\\htdocs\\prog-ing\\datasets\\" + imeDat);
+						Path dst = Paths.get("C:\\Users\\vitom\\Documents\\GitHub\\prog-in\\src\\datasets" + imeDat);
 						path2 = dst.toString().replace("\\", "\\\\");
 											
 						try {
@@ -427,7 +427,7 @@ public class CGUI extends JFrame {
 				}else {
 					
 						Path src = Paths.get(path);
-						Path dst = Paths.get("D:\\xampp\\htdocs\\prog-ing\\classifiers\\" + imeDat);
+						Path dst = Paths.get("C:\\Users\\vitom\\Documents\\GitHub\\prog-in\\src\\classifiers" + imeDat);
 						path2 = dst.toString().replace("\\", "\\\\");
 											
 						try {
@@ -858,11 +858,11 @@ public class CGUI extends JFrame {
             josjednavarijabla =  odbKlasifikatoris.split("\n");
         	
         	for(int i = 0; i < josjednavarijabla.length;i++) {
-        		ResultSet provjera2 = st1.executeQuery("SELECT path FROM `klasifikatori` where name = '"+ josjednavarijabla[i] +"' ");
+        		ResultSet provjera2 = st1.executeQuery("SELECT name FROM `klasifikatori` where name = '"+ josjednavarijabla[i] +"' ");
             	
         		while(provjera2.next()) {
         			
-        			klas_lista.add(provjera2.getString("path"));
+        			klas_lista.add(provjera2.getString("name"));
 
             	}
 
