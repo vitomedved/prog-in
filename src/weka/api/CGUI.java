@@ -251,7 +251,7 @@ public class CGUI extends JFrame {
 				}else {
 					
 						Path src = Paths.get(path);
-						Path dst = Paths.get("C:\\Users\\vitom\\Documents\\GitHub\\prog-in\\src\\datasets" + imeDat);
+						Path dst = Paths.get("C:\\Users\\vitom\\Documents\\GitHub\\prog-in\\src\\datasets\\" + imeDat);
 						path2 = dst.toString().replace("\\", "\\\\");
 											
 						try {
@@ -427,7 +427,7 @@ public class CGUI extends JFrame {
 				}else {
 					
 						Path src = Paths.get(path);
-						Path dst = Paths.get("C:\\Users\\vitom\\Documents\\GitHub\\prog-in\\src\\classifiers" + imeDat);
+						Path dst = Paths.get("C:\\Users\\vitom\\Documents\\GitHub\\prog-in\\src\\classifiers\\" + imeDat);
 						path2 = dst.toString().replace("\\", "\\\\");
 											
 						try {
@@ -624,10 +624,6 @@ public class CGUI extends JFrame {
 					try {
 						//Create dataset for BoxPlot
 						DefaultBoxAndWhiskerCategoryDataset _dataset = new DefaultBoxAndWhiskerCategoryDataset();
-						
-						klas_lista.clear();
-						klas_lista.add("NaiveBayes");
-						klas_lista.add("J48");
 						
 						for(int i = 0; i < klas_lista.size(); i++)
 						{
