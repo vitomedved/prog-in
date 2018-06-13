@@ -304,8 +304,20 @@ public class CClassifier extends weka.classifiers.AbstractClassifier{
 			eval.evaluateModel(this, test);
 			System.out.println("num TP: " + eval.numTruePositives(0));
 			System.out.println("num TN: " + eval.numTrueNegatives(0));
+			
+			System.out.println("SUM: " + (eval.numTrueNegatives(0) + eval.numTruePositives(0) + eval.numFalseNegatives(0) + eval.numFalsePositives(0)));
+			
 			//System.out.println(eval.toSummaryString());
-			double gm = Math.sqrt(eval.truePositiveRate(0) * eval.trueNegativeRate(0));
+			double x1 = eval.truePositiveRate(0);
+			double x2 = eval.trueNegativeRate(0);
+			
+			/*if(x1 == 0)
+				x1 = 1.0;
+			
+			if(x2 == 0)
+				x2 = 1.0;*/
+			
+			double gm = Math.sqrt(x1 * x2);
 			list.add(gm);
 		}
 		return list;
